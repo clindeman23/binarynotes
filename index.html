@@ -3,1084 +3,913 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Binary — Computer Science</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<title>BINARY.EXE — Computer Science</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-/* ── TOKENS ─────────────────────────────────────────────────────────── */
+/* ── CRT TOKENS ───────────────────────────────────────────────────────── */
 :root {
-  --bg:       #080f2e;
-  --bg-soft:  #0d1640;
-  --bg-card:  #111d52;
-  --cyan:     #00c8f0;
-  --cyan-dim: rgba(0,200,240,.12);
-  --amber:    #f59e0b;
-  --green:    #34d399;
-  --red:      #f87171;
-  --text:     #e8eeff;
-  --muted:    #6b7db8;
-  --border:   rgba(0,200,240,.14);
-  --rule:     rgba(255,255,255,.07);
+  --black:   #020a02;
+  --green:   #33ff33;
+  --green2:  #00cc00;
+  --green3:  #007700;
+  --green4:  rgba(51,255,51,.08);
+  --amber:   #ffb000;
+  --dim:     rgba(51,255,51,.72);
+  --dimmer:  rgba(51,255,51,.45);
+  --border:  rgba(51,255,51,.25);
+  --glow:    0 0 8px rgba(51,255,51,.6), 0 0 20px rgba(51,255,51,.2);
+  --glow-sm: 0 0 6px rgba(51,255,51,.5);
 }
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 
-/* ── RESET ───────────────────────────────────────────────────────────── */
+@media(prefers-reduced-motion:reduce){
+  *{ animation:none!important; transition:none!important; }
+}
+
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 html { scroll-behavior:smooth; }
+
 body {
-  font-family:'Inter',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  line-height:1.7;
+  font-family:'Share Tech Mono', 'Courier New', monospace;
+  background:var(--black);
+  color:var(--green);
   overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  line-height:1.6;
+  font-size:17px;
 }
 
-/* ── PROGRESS ────────────────────────────────────────────────────────── */
+/* ── CRT OVERLAY ─────────────────────────────────────────────────────── */
+body::before {
+  content:'';
+  position:fixed; inset:0; z-index:9999;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,.08) 2px,
+    rgba(0,0,0,.08) 4px
+  );
+}
+body::after {
+  content:'';
+  position:fixed; inset:0; z-index:9998;
+  pointer-events:none;
+  background:radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,.3) 100%);
+}
+
+/* ── PROGRESS BAR ────────────────────────────────────────────────────── */
 #bar {
   position:fixed; top:0; left:0; right:0;
-  height:2px; z-index:999;
-  background:linear-gradient(90deg,var(--cyan),var(--amber));
+  height:2px; z-index:10000;
+  background:var(--green);
   transform-origin:left;
   transform:scaleX(0);
-  transition:transform .15s;
+  box-shadow:var(--glow);
+  transition:transform .2s;
 }
 
 /* ── TOP NAV ─────────────────────────────────────────────────────────── */
 #topnav {
-  position:fixed; top:0; left:0; right:0; z-index:500;
-  height:52px;
+  position:fixed; top:2px; left:0; right:0; z-index:5000;
+  height:48px;
   display:flex; align-items:center; justify-content:space-between;
   padding:0 clamp(1rem,4vw,2rem);
-  background:rgba(8,15,46,.85);
-  backdrop-filter:blur(16px) saturate(1.4);
-  border-bottom:1px solid var(--rule);
+  background:rgba(2,10,2,.92);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(2px);
 }
-.topnav-brand {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.8rem; font-weight:600;
-  color:var(--cyan);
-  letter-spacing:.04em;
-  text-decoration:none;
+.nav-logo {
+  font-family:'VT323', monospace;
+  font-size:1.35rem;
+  color:var(--green);
+  text-shadow:var(--glow);
+  letter-spacing:.05em;
 }
-.topnav-dots { display:flex; gap:10px; align-items:center; }
+.nav-logo .cursor { animation:blink .8s step-end infinite; }
+@keyframes blink { 50%{ opacity:0; } }
+
+.nav-dots { display:flex; gap:12px; align-items:center; }
 .dot {
-  width:7px; height:7px; border-radius:50%;
-  background:var(--rule);
-  border:1.5px solid var(--muted);
+  width:10px; height:10px;
+  background:var(--green3);
+  border:1px solid var(--green3);
   cursor:pointer;
-  transition:background .2s, border-color .2s, box-shadow .2s;
+  clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);
+  transition:all .2s;
 }
 .dot.on {
-  background:var(--cyan);
-  border-color:var(--cyan);
-  box-shadow:0 0 8px rgba(0,200,240,.6);
+  background:var(--green);
+  border-color:var(--green);
+  filter:drop-shadow(0 0 4px var(--green));
 }
 
-/* ── PAGE LAYOUT ─────────────────────────────────────────────────────── */
-.page { max-width:640px; margin:0 auto; padding:0 clamp(1rem,5vw,2rem); }
-
-section {
-  border-top:1px solid var(--rule);
+/* ── LAYOUT ──────────────────────────────────────────────────────────── */
+.page {
+  max-width:780px;
+  margin:0 auto;
+  padding:calc(48px + clamp(2.5rem,5vw,4rem)) clamp(1rem,5vw,2.5rem) clamp(3rem,6vw,5rem);
+  width:100%;
 }
-section:first-of-type { border-top:none; }
+section { min-height:100svh; display:flex; align-items:flex-start; }
+section + section { border-top:1px solid var(--border); }
+section:last-of-type { min-height:auto; }
+
+/* ── TERMINAL PROMPT ─────────────────────────────────────────────────── */
+.prompt {
+  font-family:'VT323',monospace;
+  font-size:1rem;
+  color:var(--dim);
+  margin-bottom:.3rem;
+  letter-spacing:.05em;
+}
+.prompt::before { content:'$ '; color:var(--green); }
+
+/* ── CHAPTER PROGRESS ────────────────────────────────────────────────── */
+.ch-progress {
+  display:flex; align-items:center; gap:.5rem;
+  margin-bottom:1.8rem;
+  font-size:.72rem; color:var(--green3);
+}
+.ch-progress::before { content:'['; }
+.ch-progress::after  { content:']'; }
+.prog-pip { width:12px; height:12px; background:var(--green3); display:inline-block; }
+.prog-pip.done { background:var(--green2); }
+.prog-pip.cur  { background:var(--green); box-shadow:var(--glow-sm); animation:pipblink .6s ease-in-out infinite alternate; }
+@keyframes pipblink { from{ opacity:.7; } to{ opacity:1; } }
 
 /* ── HERO ────────────────────────────────────────────────────────────── */
-#hero { min-height:100vh; display:flex; align-items:center; }
-.hero-ticker {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.68rem; letter-spacing:.2em;
-  color:rgba(0,200,240,.18);
-  overflow:hidden; white-space:nowrap;
-  margin-bottom:3rem;
-  user-select:none;
+.boot-line {
+  font-size:.88rem;
+  color:rgba(51,255,51,.75);
+  margin-bottom:.3rem;
+  opacity:0;
+  animation:fadein .1s forwards;
 }
-.ticker-inner { display:inline-block; animation:slide 28s linear infinite; }
-@keyframes slide { to { transform:translateX(-50%); } }
-.ticker-hl { color:rgba(0,200,240,.7); }
+@keyframes fadein { to{ opacity:1; } }
 
-.hero-kicker {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.7rem; font-weight:600;
-  color:var(--cyan); letter-spacing:.1em;
-  margin-bottom:.9rem;
-}
-h1 {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:clamp(4rem,13vw,7.5rem);
-  font-weight:700; line-height:.88;
-  color:var(--text);
-  letter-spacing:-.02em;
-  margin-bottom:1.2rem;
+.hero-title {
+  font-family:'VT323',monospace;
+  font-size:clamp(5rem,18vw,11rem);
+  line-height:.85;
+  color:var(--green);
+  text-shadow:var(--glow);
+  letter-spacing:.04em;
+  margin:1rem 0 .5rem;
 }
 .hero-sub {
-  font-size:1.05rem;
-  color:var(--muted);
-  max-width:44ch;
-  line-height:1.75;
-  margin-bottom:2.5rem;
+  font-size:clamp(.88rem,2vw,1.05rem);
+  color:var(--dim);
+  max-width:58ch;
+  line-height:1.7;
+  margin-bottom:2rem;
 }
-.hero-sub strong { color:var(--text); }
+.hero-sub strong { color:var(--green); }
 
-/* ── CHAPTER HEADING ─────────────────────────────────────────────────── */
-.ch-n {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.65rem; font-weight:600;
-  color:var(--muted); letter-spacing:.12em;
-  margin-bottom:.7rem;
+/* ── CHAPTER TITLE ───────────────────────────────────────────────────── */
+.ch-cmd {
+  font-family:'VT323',monospace;
+  font-size:1rem; color:var(--dim);
+  margin-bottom:.2rem;
 }
 h2 {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:clamp(1.8rem,5vw,2.6rem);
-  font-weight:700; line-height:1.05;
-  color:var(--text);
-  margin-bottom:1rem;
+  font-family:'VT323',monospace;
+  font-size:clamp(2.8rem,8vw,4.5rem);
+  line-height:.92;
+  color:var(--green);
+  text-shadow:var(--glow);
+  margin-bottom:.8rem;
+  letter-spacing:.03em;
 }
 .lead {
-  font-size:.98rem;
-  color:var(--muted);
-  max-width:56ch;
-  line-height:1.78;
-  margin-bottom:1.6rem;
+  font-size:1rem;
+  color:var(--dim);
+  max-width:60ch;
+  line-height:1.72;
+  margin-bottom:1.8rem;
 }
-.lead strong { color:var(--text); font-weight:500; }
-.lead em { color:var(--cyan); font-style:normal; }
+.lead strong { color:var(--green); }
+.lead em { color:var(--amber); font-style:normal; }
 
-/* ── SUBHEADING ──────────────────────────────────────────────────────── */
-h3 {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.85rem; font-weight:600;
-  color:var(--text); letter-spacing:.03em;
-  margin:2rem 0 .8rem;
-}
-
-/* ── HISTORY ITEMS ───────────────────────────────────────────────────── */
-.history {
-  display:flex; flex-direction:column; gap:.5rem;
+/* ── TERMINAL BLOCK ──────────────────────────────────────────────────── */
+.tblock {
+  border:1px solid var(--border);
+  background:rgba(51,255,51,.03);
   margin:1.5rem 0;
+  position:relative;
 }
-.history-item {
+.tblock::before {
+  content:attr(data-title);
+  display:block;
+  padding:.35rem .8rem;
+  background:var(--green3);
+  color:var(--black);
+  font-size:.75rem;
+  letter-spacing:.08em;
+  font-weight:700;
+}
+.tblock-body { padding:1.3rem 1.2rem; }
+
+/* ── HISTORY ─────────────────────────────────────────────────────────── */
+.hist-item {
   display:grid;
-  grid-template-columns:80px 1fr;
-  gap:.8rem;
-  padding:.8rem 0;
-  border-bottom:1px solid var(--rule);
+  grid-template-columns:90px 1fr;
+  gap:.6rem;
+  padding:.6rem 0;
+  border-bottom:1px solid rgba(51,255,51,.1);
   align-items:start;
 }
-.history-item:last-child { border-bottom:none; }
-.h-tag {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.65rem; color:var(--cyan);
-  padding-top:.15rem;
-}
-.h-text { font-size:.9rem; color:var(--muted); line-height:1.6; }
-.h-text strong { color:var(--text); font-weight:500; }
-
-/* ── VIDEO ───────────────────────────────────────────────────────────── */
-.video {
-  margin:1.8rem 0 .5rem;
-  border-radius:10px;
-  overflow:hidden;
-  position:relative;
-  padding-bottom:56.25%;
-  background:var(--bg-soft);
-  border:1px solid var(--border);
-}
-.video iframe {
-  position:absolute; inset:0;
-  width:100%; height:100%;
-  border:0;
-}
-.video-label {
-  font-size:.78rem;
-  color:var(--muted);
-  margin-top:.6rem;
-  margin-bottom:1.8rem;
-  line-height:1.5;
-}
-.video-label strong { color:var(--text); }
-
-/* ── INTERACTIVE BLOCK ───────────────────────────────────────────────── */
-.interactive {
-  margin:2rem 0;
-  padding:1.6rem;
-  background:var(--bg-soft);
-  border-radius:12px;
-  border:1px solid var(--border);
-}
-.i-label {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.65rem; font-weight:600;
-  color:var(--cyan); letter-spacing:.08em;
-  margin-bottom:1.2rem;
-  display:flex; align-items:center; gap:.5rem;
-}
-.i-label::before { content:''; width:3px; height:3px; border-radius:50%; background:var(--cyan); }
+.hist-item:last-child { border-bottom:none; }
+.hist-tag  { font-size:.78rem; color:var(--amber); }
+.hist-text { font-size:.88rem; color:rgba(51,255,51,.82); line-height:1.6; }
+.hist-text strong { color:var(--green); }
 
 /* ── SWITCH ──────────────────────────────────────────────────────────── */
-.switch-row {
-  display:flex; align-items:center; gap:1.6rem;
-  flex-wrap:wrap;
+.sw-wrap {
+  display:flex; align-items:center; gap:1.5rem;
+  flex-wrap:wrap; padding:.5rem 0 1rem;
 }
-.toggle {
-  position:relative;
-  width:72px; height:38px;
-  border-radius:19px;
-  background:#1e2a5e;
-  border:2px solid rgba(248,113,113,.5);
+.sw-box {
+  width:90px; height:48px;
+  border:2px solid var(--green3);
+  background:var(--black);
   cursor:pointer;
-  transition:all .25s;
+  position:relative;
+  transition:border-color .2s;
   flex-shrink:0;
 }
-.toggle.on {
-  background:rgba(52,211,153,.12);
-  border-color:var(--green);
-}
-.toggle-knob {
+.sw-box.on { border-color:var(--green); box-shadow:var(--glow); }
+.sw-track {
   position:absolute;
-  top:4px; left:4px;
-  width:26px; height:26px;
-  border-radius:50%;
-  background:var(--red);
-  transition:all .25s;
+  top:50%; left:6px;
+  transform:translateY(-50%);
+  width:34px; height:34px;
+  background:var(--green3);
   display:flex; align-items:center; justify-content:center;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.65rem; font-weight:700;
-  color:rgba(255,255,255,.9);
+  font-family:'VT323',monospace;
+  font-size:1.4rem;
+  color:var(--black);
+  transition:left .2s, background .2s;
 }
-.toggle.on .toggle-knob {
-  transform:translateX(34px);
-  background:var(--green);
+.sw-box.on .sw-track { left:calc(90px - 40px); background:var(--green); }
+.sw-label {
+  font-size:.88rem; color:var(--dim); line-height:1.6;
 }
-.switch-text { font-size:.9rem; color:var(--muted); line-height:1.55; }
-.switch-text strong { color:var(--text); font-weight:500; }
-.switch-text .bit-display {
+.sw-label strong { color:var(--green); }
+.sw-bit {
+  font-family:'VT323',monospace;
+  font-size:2rem;
+  color:var(--green3);
   display:inline-block;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:1.4rem; font-weight:700;
-  color:var(--red);
-  transition:color .25s;
+  transition:color .2s, text-shadow .2s;
+  line-height:1;
   vertical-align:middle;
-  margin-left:.2rem;
 }
-.switch-text .bit-display.on { color:var(--green); }
+.sw-bit.on { color:var(--green); text-shadow:var(--glow); }
+
+/* ── VIDEO CARD ──────────────────────────────────────────────────────── */
+.vid-card {
+  display:flex;
+  flex-direction:column;
+  text-decoration:none;
+  border:1px solid var(--border);
+  margin:1.3rem 0 .3rem;
+  transition:border-color .2s, box-shadow .2s;
+  background:rgba(0,0,0,.6);
+  position:relative;
+}
+.vid-card:hover { border-color:var(--green); box-shadow:inset 0 0 0 1px var(--green3); }
+.vid-thumb {
+  position:relative;
+  width:100%; aspect-ratio:16/9;
+  background:#010801;
+  overflow:hidden;
+}
+.vid-thumb img { width:100%; height:100%; object-fit:cover; filter:sepia(1) hue-rotate(80deg) saturate(1.5) brightness(.6); display:block; }
+.vid-overlay {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.35);
+}
+.vid-play-btn {
+  width:60px; height:60px;
+  border:2px solid var(--green);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--glow);
+  transition:transform .18s;
+}
+.vid-card:hover .vid-play-btn { transform:scale(1.1); }
+.vid-play-btn::after {
+  content:'';
+  border-left:22px solid var(--green);
+  border-top:12px solid transparent;
+  border-bottom:12px solid transparent;
+  margin-left:4px;
+  filter:drop-shadow(0 0 4px var(--green));
+}
+.vid-info {
+  padding:.75rem 1rem;
+  border-top:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:.4rem;
+}
+.vid-title { font-size:.9rem; color:var(--green); }
+.vid-cta   { font-size:.72rem; color:var(--green3); letter-spacing:.05em; }
+.vid-card:hover .vid-cta { color:var(--green); }
 
 /* ── BINARY COUNTER ──────────────────────────────────────────────────── */
-.counter-bits {
+.ctr-bits {
   display:flex; gap:.5rem; justify-content:center;
-  margin-bottom:1.2rem;
-  flex-wrap:wrap;
+  flex-wrap:wrap; margin-bottom:1rem;
 }
 .cbit {
   display:flex; flex-direction:column;
-  align-items:center; gap:.4rem;
+  align-items:center; gap:.35rem;
 }
-.cbit-label {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.6rem; color:var(--muted);
+.cbit-place {
+  font-size:.65rem; color:var(--green3);
 }
 .cbit-cell {
-  width:52px; height:52px;
-  border-radius:8px;
-  border:1.5px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.03);
+  width:56px; height:56px;
+  border:2px solid var(--green3);
+  background:var(--black);
   display:flex; align-items:center; justify-content:center;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:1.4rem; font-weight:600;
-  color:rgba(255,255,255,.18);
-  transition:all .2s;
+  font-family:'VT323',monospace;
+  font-size:2rem;
+  color:var(--green3);
+  transition:all .18s;
 }
 .cbit-cell.on {
-  border-color:var(--cyan);
-  background:rgba(0,200,240,.1);
-  color:var(--cyan);
-  box-shadow:0 0 16px rgba(0,200,240,.2);
+  border-color:var(--green);
+  color:var(--green);
+  background:rgba(51,255,51,.08);
+  box-shadow:var(--glow-sm), inset 0 0 12px rgba(51,255,51,.1);
 }
-.counter-val {
+.ctr-num {
   text-align:center;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:3rem; font-weight:700;
+  font-family:'VT323',monospace;
+  font-size:5rem;
   color:var(--amber);
   line-height:1;
-  margin-bottom:.4rem;
+  text-shadow:0 0 10px rgba(255,176,0,.5);
+  margin:.2rem 0 .1rem;
 }
-.counter-expr {
+.ctr-expr {
   text-align:center;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.72rem; color:var(--muted);
-  margin-bottom:1.2rem;
-  min-height:1.2em;
+  font-size:.82rem; color:rgba(51,255,51,.65);
+  margin-bottom:.9rem;
+  min-height:1.3em;
 }
 .btn-row { display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap; }
 
 /* ── BUTTONS ─────────────────────────────────────────────────────────── */
 button {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.72rem; font-weight:600;
-  padding:.44rem .95rem;
-  border-radius:6px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.78rem;
+  padding:.4rem .95rem;
   cursor:pointer;
-  transition:all .15s;
-  border:1.5px solid var(--border);
+  border:1px solid var(--green3);
   background:transparent;
-  color:var(--muted);
-  letter-spacing:.04em;
+  color:var(--green3);
+  transition:all .15s;
+  letter-spacing:.05em;
 }
-button:hover { border-color:var(--cyan); color:var(--cyan); background:var(--cyan-dim); }
-button.primary { background:var(--cyan); border-color:var(--cyan); color:#080f2e; font-weight:700; }
-button.primary:hover { opacity:.88; }
-button:disabled { opacity:.3; cursor:default; pointer-events:none; }
+button:hover { border-color:var(--green); color:var(--green); background:rgba(51,255,51,.07); box-shadow:var(--glow-sm); }
+button.primary { border-color:var(--green); color:var(--green); background:rgba(51,255,51,.1); }
+button.primary:hover { background:rgba(51,255,51,.2); box-shadow:var(--glow); }
+button:disabled { opacity:.25; cursor:default; pointer-events:none; }
 
 /* ── TEXT INPUT ──────────────────────────────────────────────────────── */
+.t-input-wrap { position:relative; }
+.t-input-wrap::before {
+  content:'INPUT >';
+  position:absolute; left:.8rem; top:50%;
+  transform:translateY(-50%);
+  font-size:.72rem; color:var(--green3);
+  pointer-events:none;
+  letter-spacing:.06em;
+}
 input[type=text] {
   width:100%;
-  background:rgba(0,0,0,.3);
-  border:1.5px solid var(--border);
-  color:var(--text);
-  font-family:'IBM Plex Mono',monospace;
+  background:rgba(51,255,51,.04);
+  border:1px solid var(--border);
+  color:var(--green);
+  font-family:'Share Tech Mono',monospace;
   font-size:.9rem;
-  padding:.65rem .9rem;
-  border-radius:8px;
+  padding:.65rem .9rem .65rem 5.8rem;
   outline:none;
-  transition:border-color .2s;
+  transition:border-color .2s, box-shadow .2s;
+  caret-color:var(--green);
 }
-input[type=text]:focus { border-color:var(--cyan); }
-input[type=text]::placeholder { color:rgba(107,125,184,.45); }
+input[type=text]:focus { border-color:var(--green); box-shadow:var(--glow-sm); }
+input[type=text]::placeholder { color:var(--green3); }
 
 /* ── BINARY OUTPUT ───────────────────────────────────────────────────── */
 .bin-out {
-  margin-top:1rem;
-  display:flex; flex-wrap:wrap; gap:.6rem .9rem;
+  margin-top:1.1rem;
+  display:flex; flex-wrap:wrap;
+  gap:.6rem 1rem;
   min-height:2.5rem;
 }
-.bin-char {
-  display:flex; flex-direction:column;
-  align-items:center; gap:.3rem;
-}
+.bin-char { display:flex; flex-direction:column; align-items:center; gap:.3rem; }
 .bin-letter {
-  font-size:.62rem;
+  font-size:.68rem;
   color:var(--amber);
-  font-family:'IBM Plex Mono',monospace;
+  background:rgba(255,176,0,.12);
+  padding:.1rem .4rem;
   letter-spacing:.04em;
 }
-.bin-bits {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.76rem;
-  color:var(--cyan);
-  letter-spacing:.06em;
-}
+.bin-bits { font-size:.8rem; color:var(--green); letter-spacing:.1em; }
 
-/* ── BYTE VISUAL (static "A") ────────────────────────────────────────── */
+/* ── BYTE VISUAL ─────────────────────────────────────────────────────── */
 .byte-row {
   display:flex; gap:.4rem; justify-content:center;
-  margin:1rem 0;
-  flex-wrap:wrap;
+  flex-wrap:wrap; margin:1rem 0 .4rem;
 }
 .byte-cell {
-  width:52px; height:52px;
-  border-radius:8px;
-  border:1.5px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.03);
+  width:54px; height:54px;
+  border:2px solid var(--green3);
+  background:var(--black);
   display:flex; align-items:center; justify-content:center;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:1.4rem; font-weight:600;
-  color:rgba(255,255,255,.18);
+  font-family:'VT323',monospace; font-size:1.9rem;
+  color:var(--green3);
 }
 .byte-cell.on {
-  border-color:var(--cyan);
-  background:rgba(0,200,240,.1);
-  color:var(--cyan);
-  box-shadow:0 0 14px rgba(0,200,240,.18);
+  border-color:var(--green); color:var(--green);
+  background:rgba(51,255,51,.08);
+  box-shadow:var(--glow-sm), inset 0 0 10px rgba(51,255,51,.1);
 }
-.byte-caption {
-  text-align:center;
-  font-size:.8rem; color:var(--muted);
-  margin-top:.5rem;
-}
-.byte-caption strong { color:var(--text); }
+.byte-cap { text-align:center; font-size:.82rem; color:rgba(51,255,51,.7); margin-top:.3rem; }
+.byte-cap strong { color:var(--green); }
 
 /* ── BYTE BUILDER ────────────────────────────────────────────────────── */
-.builder-row {
+.builder-bits {
   display:flex; gap:.4rem; justify-content:center;
-  margin:.5rem 0 1.2rem;
-  flex-wrap:wrap;
+  flex-wrap:wrap; margin:.5rem 0 1rem;
 }
-.bbit {
-  display:flex; flex-direction:column;
-  align-items:center; gap:.35rem;
-  cursor:pointer;
-}
-.bbit-weight {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.58rem; color:var(--muted);
-}
+.bbit { display:flex; flex-direction:column; align-items:center; gap:.3rem; cursor:pointer; }
+.bbit-w { font-size:.6rem; color:var(--green3); }
 .bbit-cell {
-  width:52px; height:52px;
-  border-radius:8px;
-  border:1.5px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.03);
+  width:54px; height:54px;
+  border:2px solid var(--green3);
+  background:var(--black);
   display:flex; align-items:center; justify-content:center;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:1.4rem; font-weight:600;
-  color:rgba(255,255,255,.18);
-  transition:all .18s;
+  font-family:'VT323',monospace; font-size:1.9rem;
+  color:var(--green3);
+  cursor:pointer;
+  transition:all .15s;
   user-select:none;
 }
-.bbit-cell:hover { border-color:rgba(0,200,240,.35); background:rgba(0,200,240,.05); }
+.bbit-cell:hover { border-color:var(--green2); color:var(--green2); background:rgba(51,255,51,.04); }
 .bbit-cell.on {
-  border-color:var(--cyan);
-  background:rgba(0,200,240,.12);
-  color:var(--cyan);
-  box-shadow:0 0 14px rgba(0,200,240,.2);
+  border-color:var(--green); color:var(--green);
+  background:rgba(51,255,51,.1);
+  box-shadow:var(--glow-sm), inset 0 0 12px rgba(51,255,51,.12);
 }
 .builder-result {
+  border-top:1px solid rgba(51,255,51,.15);
+  padding-top:1rem;
   text-align:center;
-  padding:1rem 0 .3rem;
-  border-top:1px solid var(--rule);
 }
 .builder-num {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:2.8rem; font-weight:700;
+  font-family:'VT323',monospace;
+  font-size:4rem;
   color:var(--amber);
   line-height:1;
+  text-shadow:0 0 10px rgba(255,176,0,.45);
 }
-.builder-info {
-  font-size:.8rem; color:var(--muted);
-  margin-top:.4rem;
-}
-.builder-info strong { color:var(--text); }
+.builder-info { font-size:.82rem; color:rgba(51,255,51,.7); margin-top:.3rem; }
+.builder-info strong { color:var(--green); }
 
 /* ── SIZE TABLE ──────────────────────────────────────────────────────── */
-.size-table { width:100%; margin:1rem 0; border-collapse:collapse; }
-.size-table tr { border-bottom:1px solid var(--rule); }
-.size-table tr:last-child { border-bottom:none; }
-.size-table td {
-  padding:.65rem .5rem;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.8rem;
-  vertical-align:top;
-}
-.size-table td:first-child { color:var(--text); font-weight:600; width:80px; }
-.size-table td:nth-child(2) { color:var(--muted); padding-right:1rem; }
-.size-table td:last-child { color:rgba(107,125,184,.55); }
+.size-tbl { width:100%; border-collapse:collapse; margin:.8rem 0; }
+.size-tbl tr { border-bottom:1px solid rgba(51,255,51,.08); }
+.size-tbl tr:last-child { border:none; }
+.size-tbl td { padding:.55rem .5rem; font-size:.82rem; vertical-align:top; }
+.size-tbl td:first-child { color:var(--green); width:72px; font-weight:700; }
+.size-tbl td:nth-child(2){ color:rgba(51,255,51,.75); padding-right:1rem; }
+.size-tbl td:last-child   { color:rgba(51,255,51,.55); }
 
-/* ── COMPRESSION CARDS ───────────────────────────────────────────────── */
+/* ── COMPRESSION ─────────────────────────────────────────────────────── */
 .comp-pair {
   display:grid; grid-template-columns:1fr 1fr;
-  gap:1px;
-  background:var(--border);
-  border-radius:10px;
-  overflow:hidden;
-  margin:1rem 0 1.5rem;
+  gap:1px; background:var(--border);
   border:1px solid var(--border);
+  margin:1rem 0 1.3rem;
 }
-.comp-card {
-  background:var(--bg-soft);
-  padding:1.2rem 1rem;
-}
-.comp-type {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.65rem; font-weight:600;
-  letter-spacing:.08em;
-  margin-bottom:.5rem;
-}
-.comp-type.loss0 { color:var(--green); }
-.comp-type.loss1 { color:var(--amber); }
-.comp-title { font-size:.9rem; font-weight:600; color:var(--text); margin-bottom:.35rem; }
-.comp-body { font-size:.8rem; color:var(--muted); line-height:1.55; margin-bottom:.6rem; }
-.comp-formats {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.68rem; color:rgba(107,125,184,.7);
-}
+.comp-card { background:rgba(2,10,2,.95); padding:1.1rem; }
+.comp-type { font-size:.7rem; letter-spacing:.1em; margin-bottom:.4rem; }
+.comp-type.l0 { color:var(--green); }
+.comp-type.l1 { color:var(--amber); }
+.comp-title { font-size:.95rem; color:var(--green); margin-bottom:.3rem; }
+.comp-body  { font-size:.82rem; color:rgba(51,255,51,.78); line-height:1.55; margin-bottom:.5rem; }
+.comp-fmt   { font-size:.7rem; color:var(--green3); }
 
-/* ── RLE DEMO ────────────────────────────────────────────────────────── */
-.rle-wrap { margin:1.2rem 0; }
 .rle-row { display:flex; align-items:center; gap:.8rem; margin:.5rem 0; flex-wrap:wrap; }
-.rle-tag {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.62rem; color:var(--muted);
-  width:68px; flex-shrink:0;
-}
-.rle-pixels { display:flex; gap:2px; }
-.rle-px { width:15px; height:15px; border-radius:2px; }
-.rle-code {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.72rem; color:var(--cyan);
-}
-.rle-saving {
-  font-size:.75rem; color:var(--muted);
-  margin-top:.5rem;
-  padding:.5rem .75rem;
-  background:rgba(52,211,153,.06);
+.rle-tag { font-size:.65rem; color:var(--green3); width:72px; flex-shrink:0; }
+.rle-px  { width:15px; height:15px; }
+.rle-pix { display:flex; gap:2px; }
+.rle-code{ font-size:.78rem; color:var(--amber); }
+.rle-save{
+  margin-top:.7rem; padding:.5rem .8rem;
   border-left:2px solid var(--green);
-  border-radius:0 4px 4px 0;
+  font-size:.82rem; color:rgba(51,255,51,.72);
+  background:rgba(51,255,51,.03);
 }
-.rle-saving strong { color:var(--green); }
+.rle-save strong { color:var(--green); }
 
 /* ── SUMMARY ─────────────────────────────────────────────────────────── */
-.summary {
-  display:flex; flex-direction:column;
-  gap:.6rem;
-  margin:1.5rem 0;
-  padding:1.4rem;
-  background:var(--bg-soft);
-  border-radius:10px;
-  border:1px solid var(--border);
-}
+.summary { display:flex; flex-direction:column; gap:.5rem; margin:1.2rem 0; }
 .s-item {
-  display:flex; align-items:baseline; gap:.7rem;
-  font-size:.9rem; color:var(--muted);
+  display:flex; gap:.7rem;
+  font-size:.92rem; color:rgba(51,255,51,.8);
+  padding:.4rem 0;
+  border-bottom:1px dotted rgba(51,255,51,.12);
+  align-items:baseline;
 }
-.s-item::before {
-  content:'→';
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.72rem;
-  color:var(--cyan);
-  flex-shrink:0;
-}
-.s-item strong { color:var(--text); font-weight:500; }
+.s-item::before { content:'>>'; color:var(--green); flex-shrink:0; font-size:.75rem; }
+.s-item strong { color:var(--green); }
 .closer-code {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.68rem; color:rgba(0,200,240,.4);
-  word-break:break-all;
-  line-height:1.8;
+  font-size:.7rem; color:var(--green3);
+  word-break:break-all; line-height:1.9;
   margin-top:1.5rem;
 }
-.closer-code span { color:var(--cyan); }
+
+/* ── CHAPTER NAV ─────────────────────────────────────────────────────── */
+.ch-nav {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:3rem;
+  padding-top:1.2rem;
+  border-top:1px solid var(--border);
+  gap:.8rem;
+}
+.ch-nav-btn {
+  font-family:'Share Tech Mono',monospace;
+  font-size:.75rem;
+  padding:.42rem .9rem;
+  border:1px solid var(--border);
+  background:transparent; color:var(--dim);
+  cursor:pointer; transition:all .15s; letter-spacing:.04em;
+}
+.ch-nav-btn:hover { border-color:var(--green); color:var(--green); box-shadow:var(--glow-sm); }
+.ch-nav-btn:disabled { opacity:.2; pointer-events:none; }
+.ch-nav-btn.next { border-color:var(--green2); color:var(--green); }
+.ch-nav-center { font-size:.72rem; color:rgba(51,255,51,.6); letter-spacing:.08em; }
 
 /* ── RESPONSIVE ──────────────────────────────────────────────────────── */
 @media(max-width:560px){
-  .cbit-cell,.byte-cell,.bbit-cell { width:40px; height:40px; font-size:1.15rem; }
-  .counter-bits,.byte-row,.builder-row { gap:.3rem; }
+  .cbit-cell,.byte-cell,.bbit-cell { width:42px; height:42px; font-size:1.5rem; }
+  .ctr-num { font-size:4rem; }
+  .builder-num { font-size:3rem; }
   .comp-pair { grid-template-columns:1fr; }
-  .history-item { grid-template-columns:60px 1fr; gap:.5rem; }
-  .switch-row { gap:1rem; }
+  .hist-item { grid-template-columns:72px 1fr; }
+  .sw-box { width:76px; }
+  .sw-box.on .sw-track { left:calc(76px - 40px); }
 }
 @media(max-width:380px){
-  .cbit-cell,.byte-cell,.bbit-cell { width:34px; height:34px; font-size:.95rem; }
+  .cbit-cell,.byte-cell,.bbit-cell { width:36px; height:36px; font-size:1.25rem; }
+  .byte-row,.builder-bits,.ctr-bits { gap:.28rem; }
 }
 
-/* ── VIDEO LINK CARDS ────────────────────────────────────────────────── */
-.vid-card {
-  display:flex;
-  flex-direction:column;
-  text-decoration:none;
-  border-radius:10px;
-  overflow:hidden;
-  border:1px solid var(--border);
-  margin:1.6rem 0;
-  transition:border-color .2s, transform .2s, box-shadow .2s;
-  background:var(--bg-soft);
-}
-.vid-card:hover {
-  border-color:var(--cyan);
-  transform:translateY(-2px);
-  box-shadow:0 8px 28px rgba(0,0,0,.35);
-}
-.vid-thumb {
-  position:relative;
-  width:100%;
-  aspect-ratio:16/9;
-  background:#0a0f28;
-  overflow:hidden;
-}
-.vid-thumb img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-  opacity:.85;
-  transition:opacity .2s;
-}
-.vid-card:hover .vid-thumb img { opacity:1; }
-.vid-play {
-  position:absolute;
-  inset:0;
+/* ── READABILITY PANEL ─────────────────────────────────────────────── */
+#read-panel {
+  position:fixed;
+  bottom:clamp(.8rem,3vw,1.5rem);
+  right:clamp(.8rem,3vw,1.5rem);
+  z-index:8000;
+  background:rgba(2,10,2,.96);
+  border:1px solid var(--green);
+  padding:.65rem .85rem;
   display:flex;
   align-items:center;
-  justify-content:center;
-  transition:transform .2s;
+  gap:.8rem;
+  box-shadow:var(--glow);
+  flex-wrap:wrap;
+  max-width:260px;
 }
-.vid-card:hover .vid-play { transform:scale(1.1); }
-.vid-info {
-  padding:.9rem 1.1rem;
-  display:flex;
-  flex-direction:column;
-  gap:.25rem;
-}
-.vid-title {
-  font-size:.92rem;
-  font-weight:600;
-  color:var(--text);
-  line-height:1.35;
-}
-.vid-sub {
-  font-size:.78rem;
-  color:var(--muted);
-}
-.vid-cta {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.68rem;
-  color:var(--cyan);
-  margin-top:.3rem;
-  letter-spacing:.03em;
-}
-
-
-/* ── SLIDE/CHAPTER CARD FEEL ─────────────────────────────────────────── */
-section {
-  min-height:100svh;
-  display:flex;
-  align-items:flex-start;
-}
-/* override the old section padding rule that didn't do this */
-section > .page {
-  width:100%;
-  padding-top:calc(52px + clamp(2.5rem,5vw,4rem));
-  padding-bottom:clamp(2.5rem,5vw,4rem);
-}
-
-/* Chapter progress badge */
-.ch-progress {
-  display:flex;
-  align-items:center;
-  gap:.5rem;
-  margin-bottom:1.5rem;
-}
-.ch-progress-dot {
-  width:6px; height:6px;
-  border-radius:50%;
-  background:rgba(107,125,184,.3);
-}
-.ch-progress-dot.done { background:var(--cyan); }
-.ch-progress-dot.current {
-  background:var(--cyan);
-  box-shadow:0 0 6px rgba(0,200,240,.5);
-  width:18px;
-  border-radius:3px;
-}
-
-/* Chapter nav (prev/next) */
-.ch-nav {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-top:3rem;
-  padding-top:1.5rem;
-  border-top:1px solid var(--rule);
-  gap:1rem;
-}
-.ch-nav-btn {
-  display:flex;
-  align-items:center;
-  gap:.5rem;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.72rem;
-  font-weight:600;
-  color:var(--muted);
-  background:none;
-  border:1.5px solid var(--rule);
-  border-radius:7px;
-  padding:.5rem .9rem;
-  cursor:pointer;
-  transition:all .18s;
-  letter-spacing:.03em;
-}
-.ch-nav-btn:hover {
-  border-color:var(--cyan);
-  color:var(--cyan);
-  background:var(--cyan-dim);
-}
-.ch-nav-btn:disabled {
-  opacity:.25;
-  pointer-events:none;
-}
-.ch-nav-btn.next {
-  border-color:rgba(0,200,240,.35);
-  color:var(--cyan);
-}
-.ch-nav-btn.next:hover {
-  background:rgba(0,200,240,.12);
-}
-.ch-nav-center {
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.62rem;
-  color:var(--muted);
+#read-panel label {
+  font-size:.65rem;
+  color:var(--green3);
   letter-spacing:.06em;
-  text-align:center;
+  white-space:nowrap;
+}
+#read-panel input[type=range] {
+  -webkit-appearance:none;
+  appearance:none;
+  width:80px; height:4px;
+  background:var(--green3);
+  outline:none;
+  border:none;
+  padding:0;
+  cursor:pointer;
+}
+#read-panel input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:14px; height:14px;
+  background:var(--green);
+  box-shadow:var(--glow-sm);
+  cursor:pointer;
+}
+#read-panel input[type=range]::-moz-range-thumb {
+  width:14px; height:14px;
+  background:var(--green);
+  border:none;
+  box-shadow:var(--glow-sm);
+  cursor:pointer;
+}
+#scan-toggle {
+  font-size:.65rem;
+  color:var(--green3);
+  background:none;
+  border:1px solid var(--green3);
+  padding:.2rem .55rem;
+  cursor:pointer;
+  letter-spacing:.05em;
+  transition:all .15s;
+}
+#scan-toggle:hover, #scan-toggle.off {
+  border-color:var(--green);
+  color:var(--green);
 }
 
-
-/* ── INTERACTIVE UPGRADES ─────────────────────────────────────────────── */
-
-/* Bigger, more tactile bit cells */
-.cbit-cell, .byte-cell, .bbit-cell {
-  width:56px; height:56px;
-  font-size:1.5rem;
-  border-radius:10px;
-  cursor:default;
-  transition:all .22s cubic-bezier(.34,1.56,.64,1);
-}
-.bbit-cell { cursor:pointer; }
-.bbit-cell:hover { transform:scale(1.08); border-color:rgba(0,200,240,.5); }
-.bbit-cell.on  { transform:scale(1.05); }
-.cbit-cell.on  { box-shadow:0 0 20px rgba(0,200,240,.3); }
-.byte-cell.on  { box-shadow:0 0 20px rgba(0,200,240,.3); }
-
-/* Counter val bigger */
-.counter-val { font-size:4rem; }
-
-/* Byte builder result */
-.builder-result {
-  background:rgba(0,0,0,.2);
-  border-radius:10px;
-  padding:1.1rem;
-}
-.builder-num { font-size:3.2rem; }
-
-/* Switch upgrade — bigger, more satisfying */
-.toggle { width:80px; height:44px; border-radius:22px; }
-.toggle-knob { width:32px; height:32px; top:4px; left:4px; font-size:.75rem; }
-.toggle.on .toggle-knob { transform:translateX(36px); }
-
-/* TTB output — bigger, more readable */
-.bin-out { gap:.7rem 1.1rem; margin-top:1.1rem; }
-.bin-char { gap:.35rem; }
-.bin-letter {
-  font-size:.7rem;
-  background:rgba(245,158,11,.15);
-  border-radius:4px;
-  padding:.1rem .4rem;
-  color:var(--amber);
-}
-.bin-bits { font-size:.84rem; letter-spacing:.1em; }
-
-/* Interactive — more depth */
-.interactive {
-  border:1px solid var(--border);
-  border-radius:14px;
-  background:var(--bg-soft);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 4px 24px rgba(0,0,0,.25);
-}
-.i-label {
-  font-size:.7rem;
-  padding-bottom:.9rem;
-  border-bottom:1px solid var(--rule);
-  margin-bottom:1.3rem;
-}
-
-/* Button upgrade */
-button { transition:all .18s cubic-bezier(.34,1.56,.64,1); }
-button:not(:disabled):active { transform:scale(.95); }
-button.primary:not(:disabled):hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,200,240,.25); }
-
-/* Correct answer flash */
-@keyframes correctFlash {
-  0%   { background:rgba(52,211,153,.3); }
-  100% { background:transparent; }
-}
-.flash-correct { animation:correctFlash .6s ease; }
-
-/* Wrong answer shake */
-@keyframes shake {
-  0%,100% { transform:translateX(0); }
-  25%      { transform:translateX(-6px); }
-  75%      { transform:translateX(6px); }
-}
-.flash-wrong { animation:shake .35s ease; }
-
-/* Score display */
-.score-row {
-  display:flex; align-items:center; justify-content:center; gap:.5rem;
-  margin-top:.7rem;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.72rem; color:var(--muted);
-}
-.score-pips { display:flex; gap:3px; }
-.pip {
-  width:8px; height:8px; border-radius:50%;
-  background:rgba(255,255,255,.1);
-  transition:background .3s;
-}
-.pip.on { background:var(--green); box-shadow:0 0 6px rgba(52,211,153,.5); }
-
-/* Video card — larger thumbnail */
-.vid-card { margin:1.5rem 0 .3rem; }
-
-/* Compression cards border */
-.comp-pair { border-color:var(--border); }
+/* scanlines off */
+body.no-scan::before { display:none; }
 
 </style>
 </head>
 <body>
 
+
+<!-- ── READABILITY PANEL ── -->
+<div id="read-panel">
+  <label>BRIGHTNESS</label>
+  <input type="range" id="bright-slider" min="60" max="130" value="100" oninput="setBrightness(this.value)">
+  <button id="scan-toggle" onclick="toggleScan()" title="Toggle scanlines">SCAN: ON</button>
+</div>
+
 <div id="bar"></div>
 
 <nav id="topnav">
-  <a class="topnav-brand" href="#">binary_notes.html</a>
-  <div class="topnav-dots">
-    <div class="dot on"  data-s="hero"   onclick="goTo('hero')"   title="Intro"></div>
-    <div class="dot"     data-s="ch1"    onclick="goTo('ch1')"    title="Counting"></div>
-    <div class="dot"     data-s="ch2"    onclick="goTo('ch2')"    title="Letters"></div>
-    <div class="dot"     data-s="ch3"    onclick="goTo('ch3')"    title="Bits & Bytes"></div>
-    <div class="dot"     data-s="ch4"    onclick="goTo('ch4')"    title="Data & Files"></div>
-    <div class="dot"     data-s="closer" onclick="goTo('closer')" title="Wrap-up"></div>
+  <div class="nav-logo">BINARY.EXE<span class="cursor">█</span></div>
+  <div class="nav-dots">
+    <div class="dot on"  data-s="hero"   onclick="goTo('hero')"   title="BOOT"></div>
+    <div class="dot"     data-s="ch1"    onclick="goTo('ch1')"    title="COUNTING"></div>
+    <div class="dot"     data-s="ch2"    onclick="goTo('ch2')"    title="LETTERS"></div>
+    <div class="dot"     data-s="ch3"    onclick="goTo('ch3')"    title="BYTES"></div>
+    <div class="dot"     data-s="ch4"    onclick="goTo('ch4')"    title="DATA"></div>
+    <div class="dot"     data-s="closer" onclick="goTo('closer')" title="EXIT"></div>
   </div>
 </nav>
 
-<!-- ═══ HERO ══════════════════════════════════════════════════════════ -->
+<!-- ═══ HERO / BOOT SCREEN ════════════════════════════════════════════ -->
 <section id="hero">
 <div class="page">
-<div class="ch-progress"><div class="ch-progress-dot current"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div></div>
-  <div class="hero-ticker" aria-hidden="true"><span class="ticker-inner" id="ticker-inner"></span></div>
-  <div class="hero-kicker">Computer Science · 8th Grade</div>
-  <h1>Binary</h1>
-  <p class="hero-sub">The secret language every computer speaks — and it only has two characters: <strong>1</strong> and <strong>0</strong>.</p>
+  <div id="boot-seq" style="margin-bottom:1.5rem;"></div>
+  <div class="hero-title">BINARY</div>
+  <p class="hero-sub">The secret language every computer speaks. It only has two characters: <strong>1</strong> and <strong>0</strong>. Everything else is built from those two choices.</p>
 
-  <!-- HISTORY FIRST — gives context before the switch -->
-  <div class="history">
-    <div class="history-item">
-      <div class="h-tag">1940s</div>
-      <div class="h-text">Early computers used <strong>punch cards</strong> — a hole meant ON (1), no hole meant OFF (0).</div>
-    </div>
-    <div class="history-item">
-      <div class="h-tag">ENIAC 1946</div>
-      <div class="h-text">Filled a whole room and weighed 30 tons — yet it spoke the same two digits your phone does.</div>
-    </div>
-    <div class="history-item">
-      <div class="h-tag">bugs</div>
-      <div class="h-text">A real <strong>moth</strong> once got stuck inside a switch. That's why we still call glitches "bugs."</div>
-    </div>
-  </div>
-
-  <!-- SWITCH INTERACTIVE — after context, more meaningful -->
-  <div class="interactive">
-    <div class="i-label">Try it — one switch = one "bit"</div>
-    <div class="switch-row">
-      <div class="toggle" id="sw" onclick="flipSwitch()" role="switch" aria-checked="false" aria-label="Binary switch">
-        <div class="toggle-knob" id="sw-knob">0</div>
+  <div class="tblock" data-title="HISTORICAL LOG">
+    <div class="tblock-body">
+      <div class="hist-item">
+        <div class="hist-tag">1940s</div>
+        <div class="hist-text">Punch cards — a hole meant <strong>ON (1)</strong>, no hole meant <strong>OFF (0)</strong>.</div>
       </div>
-      <div class="switch-text">
-        This switch is <strong id="sw-state">OFF</strong> — it's a
-        <span class="bit-display" id="sw-bit">0</span>
+      <div class="hist-item">
+        <div class="hist-tag">ENIAC 1946</div>
+        <div class="hist-text">Filled a whole room, weighed 30 tons — spoke the same two digits your phone does.</div>
+      </div>
+      <div class="hist-item">
+        <div class="hist-tag">BUGS</div>
+        <div class="hist-text">A real <strong>moth</strong> got stuck in a switch. Still call glitches "bugs" to this day.</div>
       </div>
     </div>
-    <p style="margin-top:1.1rem;font-size:.85rem;color:var(--muted);line-height:1.7;">A computer is <strong style="color:var(--text);">millions</strong> of these. Each one is either <strong style="color:var(--green);">ON (1)</strong> or <strong style="color:var(--red);">OFF (0)</strong>. That single choice, repeated at billion times per second, is the entire foundation of computing.</p>
   </div>
 
-  <!-- VIDEO 1 -->
-  <h3>Watch: everything is 1s and 0s</h3>
-<a class="vid-card" href="https://www.youtube.com/watch?v=USCBCmwMCDA" target="_blank" rel="noopener">
-  <div class="vid-thumb">
-    <img src="https://img.youtube.com/vi/USCBCmwMCDA/mqdefault.jpg" alt="How Computers Work: Binary &amp; Data" loading="lazy" onerror="this.style.display='none'">
-    <div class="vid-play" aria-hidden="true">
-      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-        <circle cx="26" cy="26" r="26" fill="rgba(0,0,0,.6)"/>
-        <polygon points="21,15 41,26 21,37" fill="white"/>
-      </svg>
+  <div class="tblock" data-title="INTERACTIVE: ONE SWITCH = ONE BIT">
+    <div class="tblock-body">
+      <div class="sw-wrap">
+        <div class="sw-box" id="sw" onclick="flipSwitch()" role="switch" aria-checked="false" aria-label="Toggle bit switch">
+          <div class="sw-track" id="sw-knob">0</div>
+        </div>
+        <div class="sw-label">
+          STATE: <strong id="sw-state">OFF</strong> &nbsp;|&nbsp; VALUE: <span class="sw-bit" id="sw-bit">0</span>
+        </div>
+      </div>
+      <p style="font-size:.82rem;color:rgba(51,255,51,.75);margin-top:.9rem;line-height:1.7;">A computer is millions of these. Each is <strong style="color:var(--green);">ON (1)</strong> or <strong style="color:var(--green3);">OFF (0)</strong>. That single choice, scaled to billions per second, powers everything.</p>
     </div>
   </div>
-  <div class="vid-info">
-    <div class="vid-title">How Computers Work: Binary &amp; Data</div>
-    <div class="vid-sub">Code.org · about 6 minutes</div>
-    <div class="vid-cta">Watch on YouTube →</div>
-  </div>
-</a>
 
-<div class="ch-nav"><button class="ch-nav-btn" disabled>← back</button><div class="ch-nav-center">1 / 6</div><button class="ch-nav-btn next" onclick="goTo('ch1')" aria-label="Next">next →</button></div>
+  <div class="prompt">LOAD_VIDEO --module=intro</div>
+  <a class="vid-card" href="https://www.youtube.com/watch?v=USCBCmwMCDA" target="_blank" rel="noopener">
+    <div class="vid-thumb">
+      <img src="https://img.youtube.com/vi/USCBCmwMCDA/mqdefault.jpg" alt="How Computers Work: Binary and Data" loading="lazy" onerror="this.style.display='none'">
+      <div class="vid-overlay"><div class="vid-play-btn"></div></div>
+    </div>
+    <div class="vid-info">
+      <div class="vid-title">How Computers Work: Binary &amp; Data — Code.org</div>
+      <div class="vid-cta">OPEN VIDEO ></div>
+    </div>
+  </a>
+
+  <div class="ch-nav">
+    <button class="ch-nav-btn" disabled>&#60; BACK</button>
+    <div class="ch-nav-center">01 / 06</div>
+    <button class="ch-nav-btn next" onclick="goTo('ch1')">NEXT &gt;</button>
+  </div>
 </div>
 </section>
 
 <!-- ═══ CH 1: COUNTING ════════════════════════════════════════════════ -->
 <section id="ch1">
 <div class="page">
-<div class="ch-progress"><div class="ch-progress-dot done"></div><div class="ch-progress-dot current"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div></div>
-  <div class="ch-n">Chapter 01</div>
-  <h2>Counting in binary</h2>
-  <p class="lead">In decimal we have 10 digits (0–9). In binary we only have 2, so we "carry" much sooner. Each position is worth <em>double</em> the one to its right: 1, 2, 4, 8, 16…</p>
+  <div class="ch-progress" id="prog1"></div>
+  <div class="ch-cmd">> RUN counting_in_binary.exe</div>
+  <h2>COUNTING<br>IN BINARY</h2>
+  <p class="lead">Decimal has 10 digits (0–9). Binary has <em>2</em>. Each position is worth <strong>double</strong> the one to its right: 1, 2, 4, 8, 16…</p>
 
-  <!-- VIDEO FIRST — motivate before counter -->
-  <h3>See it in action first</h3>
-<a class="vid-card" href="https://www.youtube.com/watch?v=RbCbY2bJxEY" target="_blank" rel="noopener">
-  <div class="vid-thumb">
-    <img src="https://img.youtube.com/vi/RbCbY2bJxEY/mqdefault.jpg" alt="Finger Binary Counting" loading="lazy" onerror="this.style.display='none'">
-    <div class="vid-play" aria-hidden="true">
-      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-        <circle cx="26" cy="26" r="26" fill="rgba(0,0,0,.6)"/>
-        <polygon points="21,15 41,26 21,37" fill="white"/>
-      </svg>
+  <div class="prompt">LOAD_VIDEO --module=fingers</div>
+  <a class="vid-card" href="https://www.youtube.com/watch?v=RbCbY2bJxEY" target="_blank" rel="noopener">
+    <div class="vid-thumb">
+      <img src="https://img.youtube.com/vi/RbCbY2bJxEY/mqdefault.jpg" alt="Finger Binary Counting" loading="lazy" onerror="this.style.display='none'">
+      <div class="vid-overlay"><div class="vid-play-btn"></div></div>
     </div>
-  </div>
-  <div class="vid-info">
-    <div class="vid-title">Finger Binary Counting</div>
-    <div class="vid-sub">Count to 1,023 on your fingers — each finger is worth double the last</div>
-    <div class="vid-cta">Watch on YouTube →</div>
-  </div>
-</a>
+    <div class="vid-info">
+      <div class="vid-title">Finger Binary Counting — count past 1,000 on 10 fingers</div>
+      <div class="vid-cta">OPEN VIDEO ></div>
+    </div>
+  </a>
 
-  <!-- COUNTER INTERACTIVE — try it yourself after watching -->
-  <div class="interactive">
-    <div class="i-label">Now you try — count from 0 to 15</div>
-    <div class="counter-bits" id="cbits"></div>
-    <div class="counter-val" id="cval">0</div>
-    <div class="counter-expr" id="cexpr">all off = 0</div>
-    <div class="btn-row" style="margin-top:.9rem;">
-      <button onclick="cStep(-1)" id="cprev" disabled>← prev</button>
-      <button class="primary" onclick="cAuto()" id="cauto">▶ auto-count</button>
-      <button onclick="cStep(1)" id="cnext">next →</button>
-      <button onclick="cReset()">reset</button>
+  <div class="tblock" data-title="INTERACTIVE: COUNT 0 TO 15">
+    <div class="tblock-body">
+      <div class="ctr-bits" id="cbits"></div>
+      <div class="ctr-num" id="cval">0</div>
+      <div class="ctr-expr" id="cexpr">all off = 0</div>
+      <div class="btn-row">
+        <button onclick="cStep(-1)" id="cprev" disabled>&#60; PREV</button>
+        <button class="primary" onclick="cAuto()" id="cauto">▶ AUTO</button>
+        <button onclick="cStep(1)" id="cnext">NEXT &gt;</button>
+        <button onclick="cReset()">RESET</button>
+      </div>
     </div>
   </div>
 
-<div class="ch-nav"><button class="ch-nav-btn" onclick="goTo('hero')" aria-label="Previous">← back</button><div class="ch-nav-center">2 / 6</div><button class="ch-nav-btn next" onclick="goTo('ch2')" aria-label="Next">next →</button></div>
+  <div class="ch-nav">
+    <button class="ch-nav-btn" onclick="goTo('hero')">&#60; BACK</button>
+    <div class="ch-nav-center">02 / 06</div>
+    <button class="ch-nav-btn next" onclick="goTo('ch2')">NEXT &gt;</button>
+  </div>
 </div>
 </section>
 
 <!-- ═══ CH 2: LETTERS ═════════════════════════════════════════════════ -->
 <section id="ch2">
 <div class="page">
-<div class="ch-progress"><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot current"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div></div>
-  <div class="ch-n">Chapter 02</div>
-  <h2>Letters &amp; numbers</h2>
-  <p class="lead">Binary doesn't just count — it spells. A system called <em>ASCII</em> gives every character a unique number, stored as 8 bits. Capital <strong>A = 65 = 01000001</strong>.</p>
+  <div class="ch-progress" id="prog2"></div>
+  <div class="ch-cmd">> RUN letters_and_ascii.exe</div>
+  <h2>LETTERS<br>&amp; NUMBERS</h2>
+  <p class="lead">Binary doesn't just count — it spells. <em>ASCII</em> gives every character a unique number stored as 8 bits. <strong>A = 65 = 01000001</strong>.</p>
 
-  <!-- ENCODER FIRST — experiential hook -->
-  <div class="interactive">
-    <div class="i-label">Type anything — see its binary code live</div>
-    <input type="text" id="ttb" maxlength="14" placeholder="try your name…" oninput="doTTB()" autocomplete="off" spellcheck="false">
-    <div class="bin-out" id="ttb-out"></div>
-  </div>
-
-  <!-- VIDEO — deepens understanding after playing with the encoder -->
-  <h3>How does ASCII work?</h3>
-<a class="vid-card" href="https://www.youtube.com/watch?v=1GSjbWt0c9M" target="_blank" rel="noopener">
-  <div class="vid-thumb">
-    <img src="https://img.youtube.com/vi/1GSjbWt0c9M/mqdefault.jpg" alt="Representing Numbers &amp; Letters with Binary" loading="lazy" onerror="this.style.display='none'">
-    <div class="vid-play" aria-hidden="true">
-      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-        <circle cx="26" cy="26" r="26" fill="rgba(0,0,0,.6)"/>
-        <polygon points="21,15 41,26 21,37" fill="white"/>
-      </svg>
+  <div class="tblock" data-title="INTERACTIVE: TEXT → BINARY ENCODER">
+    <div class="tblock-body">
+      <div class="t-input-wrap">
+        <input type="text" id="ttb" maxlength="14" placeholder="type your name…" oninput="doTTB()" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="bin-out" id="ttb-out"></div>
     </div>
   </div>
-  <div class="vid-info">
-    <div class="vid-title">Representing Numbers &amp; Letters with Binary</div>
-    <div class="vid-sub">Crash Course Computer Science #4</div>
-    <div class="vid-cta">Watch on YouTube →</div>
-  </div>
-</a>
 
-<div class="ch-nav"><button class="ch-nav-btn" onclick="goTo('ch1')" aria-label="Previous">← back</button><div class="ch-nav-center">3 / 6</div><button class="ch-nav-btn next" onclick="goTo('ch3')" aria-label="Next">next →</button></div>
+  <div class="prompt">LOAD_VIDEO --module=ascii</div>
+  <a class="vid-card" href="https://www.youtube.com/watch?v=1GSjbWt0c9M" target="_blank" rel="noopener">
+    <div class="vid-thumb">
+      <img src="https://img.youtube.com/vi/1GSjbWt0c9M/mqdefault.jpg" alt="Representing Numbers and Letters with Binary" loading="lazy" onerror="this.style.display='none'">
+      <div class="vid-overlay"><div class="vid-play-btn"></div></div>
+    </div>
+    <div class="vid-info">
+      <div class="vid-title">Representing Numbers &amp; Letters with Binary — Crash Course CS #4</div>
+      <div class="vid-cta">OPEN VIDEO ></div>
+    </div>
+  </a>
+
+  <div class="ch-nav">
+    <button class="ch-nav-btn" onclick="goTo('ch1')">&#60; BACK</button>
+    <div class="ch-nav-center">03 / 06</div>
+    <button class="ch-nav-btn next" onclick="goTo('ch3')">NEXT &gt;</button>
+  </div>
 </div>
 </section>
 
 <!-- ═══ CH 3: BITS & BYTES ════════════════════════════════════════════ -->
 <section id="ch3">
 <div class="page">
-<div class="ch-progress"><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot current"></div><div class="ch-progress-dot"></div><div class="ch-progress-dot"></div></div>
-  <div class="ch-n">Chapter 03</div>
-  <h2>Bits &amp; bytes</h2>
-  <p class="lead">A single <em>bit</em> is one switch. Line up <strong>eight</strong> and you get a <em>byte</em> — enough to store one character. Stack bytes together and you get every file on your device.</p>
+  <div class="ch-progress" id="prog3"></div>
+  <div class="ch-cmd">> RUN bits_and_bytes.exe</div>
+  <h2>BITS<br>&amp; BYTES</h2>
+  <p class="lead">One bit is one switch. Eight bits = one <em>byte</em> = one character. Stack bytes and you get every file on your device.</p>
 
-  <!-- STATIC BYTE VISUAL — learn the shape first -->
-  <div class="interactive">
-    <div class="i-label">A bit, and a byte</div>
-    <div class="byte-row" id="byte-vis"></div>
-    <div class="byte-caption">8 bits = 1 byte &nbsp;·&nbsp; this byte stores <strong>"A"</strong> &nbsp;(01000001 = 65)</div>
-  </div>
-
-  <!-- BUILDER — play after seeing the concept -->
-  <div class="interactive">
-    <div class="i-label">Build your own byte — tap bits to flip them</div>
-    <div class="builder-row" id="builder"></div>
-    <div class="builder-result">
-      <div class="builder-num" id="b-dec">0</div>
-      <div class="builder-info" id="b-info">tap a bit above to get started</div>
+  <div class="tblock" data-title="REFERENCE: ONE BYTE = 01000001 = 'A'">
+    <div class="tblock-body">
+      <div class="byte-row" id="byte-vis"></div>
+      <div class="byte-cap">8 bits = 1 byte &nbsp;·&nbsp; this pattern stores <strong>"A"</strong> (decimal 65)</div>
     </div>
   </div>
 
-  <!-- SIZE SCALE -->
-  <h3>From bits to terabytes</h3>
-  <table class="size-table">
-    <tr><td>1 bit</td><td>a single 0 or 1 · one switch</td><td></td></tr>
-    <tr><td>1 byte</td><td>= 8 bits · one character</td><td>01000001 = "A"</td></tr>
-    <tr><td>1 KB</td><td>= 1,000 bytes</td><td>a short text message</td></tr>
-    <tr><td>1 MB</td><td>= 1,000 KB</td><td>about a minute of music</td></tr>
-    <tr><td>1 GB</td><td>= 1,000 MB</td><td>around 250 songs</td></tr>
-    <tr><td>1 TB</td><td>= 1,000 GB</td><td>~500 hours of video</td></tr>
-  </table>
+  <div class="tblock" data-title="INTERACTIVE: BYTE BUILDER — CLICK BITS TO FLIP">
+    <div class="tblock-body">
+      <div class="builder-bits" id="builder"></div>
+      <div class="builder-result">
+        <div class="builder-num" id="b-dec">0</div>
+        <div class="builder-info" id="b-info">click a bit above to begin</div>
+      </div>
+    </div>
+  </div>
 
-<div class="ch-nav"><button class="ch-nav-btn" onclick="goTo('ch2')" aria-label="Previous">← back</button><div class="ch-nav-center">4 / 6</div><button class="ch-nav-btn next" onclick="goTo('ch4')" aria-label="Next">next →</button></div>
+  <div class="tblock" data-title="REFERENCE: BIT → BYTE → TERABYTE">
+    <div class="tblock-body">
+      <table class="size-tbl">
+        <tr><td>1 bit</td><td>one switch · 0 or 1</td><td></td></tr>
+        <tr><td>1 byte</td><td>= 8 bits · one character</td><td>01000001 = "A"</td></tr>
+        <tr><td>1 KB</td><td>= 1,000 bytes</td><td>a short text message</td></tr>
+        <tr><td>1 MB</td><td>= 1,000 KB</td><td>~1 minute of music</td></tr>
+        <tr><td>1 GB</td><td>= 1,000 MB</td><td>~250 songs</td></tr>
+        <tr><td>1 TB</td><td>= 1,000 GB</td><td>~500 hours of video</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ch-nav">
+    <button class="ch-nav-btn" onclick="goTo('ch2')">&#60; BACK</button>
+    <div class="ch-nav-center">04 / 06</div>
+    <button class="ch-nav-btn next" onclick="goTo('ch4')">NEXT &gt;</button>
+  </div>
 </div>
 </section>
 
 <!-- ═══ CH 4: DATA & FILES ════════════════════════════════════════════ -->
 <section id="ch4">
 <div class="page">
-<div class="ch-progress"><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot current"></div><div class="ch-progress-dot"></div></div>
-  <div class="ch-n">Chapter 04</div>
-  <h2>Data, files &amp; compression</h2>
-  <p class="lead"><strong>Data</strong> is any string of 1s and 0s — a photo, a song, this sentence. When data gets a name and a location on disk, it becomes a <em>file</em>.</p>
+  <div class="ch-progress" id="prog4"></div>
+  <div class="ch-cmd">> RUN data_and_compression.exe</div>
+  <h2>DATA, FILES<br>&amp; COMPRESSION</h2>
+  <p class="lead">Data is any string of 1s and 0s. Give it a name and a location on disk — it becomes a <em>file</em>. Compression makes files smaller so they load faster and take less space.</p>
 
-  <!-- COMPRESSION CONCEPT -->
-  <h3>Squeezing files smaller</h3>
-  <div class="comp-pair">
-    <div class="comp-card">
-      <div class="comp-type loss0">LOSSLESS</div>
-      <div class="comp-title">Nothing is lost</div>
-      <div class="comp-body">Finds and removes repeated patterns. You get the exact original file back.</div>
-      <div class="comp-formats">ZIP · PNG · FLAC</div>
-    </div>
-    <div class="comp-card">
-      <div class="comp-type loss1">LOSSY</div>
-      <div class="comp-title">Some detail removed</div>
-      <div class="comp-body">Discards what humans barely notice. Files shrink dramatically but can't be perfectly restored.</div>
-      <div class="comp-formats">JPEG · MP3 · MP4</div>
-    </div>
-  </div>
-
-  <div class="rle-wrap">
-    <p style="font-size:.82rem;color:var(--muted);line-height:1.65;margin-bottom:.9rem;">Instead of storing every pixel, describe <em>runs</em> of the same color: "6 white, 4 black, 6 white" is far shorter than listing all 16 values.</p>
-    <div id="rle"></div>
-    <div class="rle-saving">Before: <strong>16 values</strong> &nbsp;·&nbsp; After: <strong>6 values</strong> &nbsp;·&nbsp; <strong>62% smaller</strong></div>
-  </div>
-
-  <!-- VIDEO — after the concept is clear -->
-  <h3>Watch: lossless vs. lossy in depth</h3>
-<a class="vid-card" href="https://www.youtube.com/watch?v=OtDxDvCpPL4" target="_blank" rel="noopener">
-  <div class="vid-thumb">
-    <img src="https://img.youtube.com/vi/OtDxDvCpPL4/mqdefault.jpg" alt="Compression" loading="lazy" onerror="this.style.display='none'">
-    <div class="vid-play" aria-hidden="true">
-      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-        <circle cx="26" cy="26" r="26" fill="rgba(0,0,0,.6)"/>
-        <polygon points="21,15 41,26 21,37" fill="white"/>
-      </svg>
+  <div class="tblock" data-title="REFERENCE: LOSSLESS vs LOSSY">
+    <div class="tblock-body">
+      <div class="comp-pair">
+        <div class="comp-card">
+          <div class="comp-type l0">LOSSLESS</div>
+          <div class="comp-title">Nothing removed</div>
+          <div class="comp-body">Finds repeated patterns, stores them shorter. Exact original is recoverable.</div>
+          <div class="comp-fmt">ZIP · PNG · FLAC</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-type l1">LOSSY</div>
+          <div class="comp-title">Detail removed</div>
+          <div class="comp-body">Drops what humans barely notice. Much smaller files, but can't be perfectly restored.</div>
+          <div class="comp-fmt">JPEG · MP3 · MP4</div>
+        </div>
+      </div>
+      <p style="font-size:.8rem;color:rgba(51,255,51,.75);margin:.4rem 0 .9rem;line-height:1.6;">Run-length encoding: instead of storing 16 pixels one by one, store "6 white, 4 black, 6 white" — same picture, far fewer values.</p>
+      <div id="rle"></div>
+      <div class="rle-save">BEFORE: <strong>16 values</strong> &nbsp;|&nbsp; AFTER: <strong>6 values</strong> &nbsp;|&nbsp; SAVED: <strong>62%</strong></div>
     </div>
   </div>
-  <div class="vid-info">
-    <div class="vid-title">Compression</div>
-    <div class="vid-sub">Crash Course Computer Science #21</div>
-    <div class="vid-cta">Watch on YouTube →</div>
-  </div>
-</a>
 
-  <!-- NAME ACTIVITY — fun closer for the chapter -->
-  <div class="interactive">
-    <div class="i-label">Your turn — spell your name in binary</div>
-    <input type="text" id="name-in" maxlength="12" placeholder="type your first name…" oninput="doName()" autocomplete="off" spellcheck="false">
-    <div class="bin-out" id="name-out"></div>
+  <div class="prompt">LOAD_VIDEO --module=compression</div>
+  <a class="vid-card" href="https://www.youtube.com/watch?v=OtDxDvCpPL4" target="_blank" rel="noopener">
+    <div class="vid-thumb">
+      <img src="https://img.youtube.com/vi/OtDxDvCpPL4/mqdefault.jpg" alt="Compression — Crash Course CS #21" loading="lazy" onerror="this.style.display='none'">
+      <div class="vid-overlay"><div class="vid-play-btn"></div></div>
+    </div>
+    <div class="vid-info">
+      <div class="vid-title">Compression — Crash Course Computer Science #21</div>
+      <div class="vid-cta">OPEN VIDEO ></div>
+    </div>
+  </a>
+
+  <div class="tblock" data-title="ACTIVITY: ENCODE YOUR NAME">
+    <div class="tblock-body">
+      <div class="t-input-wrap">
+        <input type="text" id="name-in" maxlength="12" placeholder="first name…" oninput="doName()" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="bin-out" id="name-out"></div>
+    </div>
   </div>
 
-<div class="ch-nav"><button class="ch-nav-btn" onclick="goTo('ch3')" aria-label="Previous">← back</button><div class="ch-nav-center">5 / 6</div><button class="ch-nav-btn next" onclick="goTo('closer')" aria-label="Next">next →</button></div>
+  <div class="ch-nav">
+    <button class="ch-nav-btn" onclick="goTo('ch3')">&#60; BACK</button>
+    <div class="ch-nav-center">05 / 06</div>
+    <button class="ch-nav-btn next" onclick="goTo('closer')">NEXT &gt;</button>
+  </div>
 </div>
 </section>
 
-<!-- ═══ CLOSER ════════════════════════════════════════════════════════ -->
-<section id="closer" style="min-height:auto;">
+<!-- ═══ CLOSER / EXIT ═════════════════════════════════════════════════ -->
+<section id="closer">
 <div class="page" style="padding-bottom:calc(clamp(3rem,6vw,5rem) + env(safe-area-inset-bottom,0px));">
-<div class="ch-progress"><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot done"></div><div class="ch-progress-dot current"></div></div>
-  <div class="ch-n">You speak binary now</div>
-  <h2>Nice work.</h2>
-  <p class="lead">Everything is switches: ON is 1, OFF is 0. Eight bits make a byte, bytes stack into files, and compression squeezes them small.</p>
+  <div class="ch-progress" id="prog5"></div>
+  <div class="ch-cmd">> SESSION_COMPLETE</div>
+  <h2>NICE<br>WORK.</h2>
+  <p class="lead">You now speak binary. <strong>Everything</strong> is switches.</p>
   <div class="summary">
     <div class="s-item">A <strong>bit</strong> is one switch — ON (1) or OFF (0).</div>
     <div class="s-item">Each binary place is worth <strong>double</strong> the one to its right.</div>
@@ -1089,192 +918,210 @@ button.primary:not(:disabled):hover { transform:translateY(-1px); box-shadow:0 4
     <div class="s-item"><strong>Lossless</strong> keeps everything; <strong>lossy</strong> trades detail for size.</div>
   </div>
   <div class="closer-code" id="closer-code"></div>
-  <p style="font-family:'IBM Plex Mono',monospace;font-size:.63rem;color:var(--muted);margin-top:.4rem;">(that says "Nice work!" in binary)</p>
-<div class="ch-nav"><button class="ch-nav-btn" onclick="goTo('ch4')" aria-label="Previous">← back</button><div class="ch-nav-center">6 / 6</div><span></span></div>
+  <p style="font-size:.65rem;color:var(--green3);margin-top:.4rem;">[that says "Nice work!" in binary]</p>
+  <div class="ch-nav">
+    <button class="ch-nav-btn" onclick="goTo('ch4')">&#60; BACK</button>
+    <div class="ch-nav-center">06 / 06</div>
+    <button class="ch-nav-btn" disabled>EXIT</button>
+  </div>
 </div>
 </section>
 
 <script>
-// ── HELPERS ──────────────────────────────────────────────────────────────
+// ── UTILS ─────────────────────────────────────────────────────────────────
 function c2b(c){ return c.charCodeAt(0).toString(2).padStart(8,'0'); }
 function goTo(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
 
-// ── PROGRESS + NAV ────────────────────────────────────────────────────────
-const secs = ['hero','ch1','ch2','ch3','ch4','closer'];
-window.addEventListener('scroll', () => {
-  const prog = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-  document.getElementById('bar').style.transform = `scaleX(${prog})`;
-  let cur = 'hero';
-  secs.forEach(id => {
-    const el = document.getElementById(id);
-    if (el && el.getBoundingClientRect().top <= 100) cur = id;
-  });
-  document.querySelectorAll('.dot').forEach(d =>
-    d.classList.toggle('on', d.dataset.s === cur));
-}, {passive:true});
-
-// ── HERO TICKER ───────────────────────────────────────────────────────────
-(function(){
-  const w = 'BINARY';
-  const m = {'B':'01000010','I':'01001001','N':'01001110','A':'01000001','R':'01010010','Y':'01011001'};
-  let s = '';
-  for (let i=0; i<8; i++)
-    for (const c of w) {
-      const b = m[c];
-      s += b.slice(0,4) + `<span class="ticker-hl"> ${c} </span>` + b.slice(4) + ' ';
-    }
-  const inner = document.getElementById('ticker-inner');
-  inner.innerHTML = s + s; // double for seamless loop
+// ── BOOT SEQUENCE ──────────────────────────────────────────────────────────
+(function boot(){
+  const lines=[
+    'BINARY LEARNING SYSTEM v1.0',
+    'LOADING MODULES...',
+    'MODULE: switches .............. OK',
+    'MODULE: counting .............. OK',
+    'MODULE: ascii_table ........... OK',
+    'MODULE: byte_builder .......... OK',
+    'MODULE: compression ........... OK',
+    'SYSTEM READY.',
+    '',
+  ];
+  const el=document.getElementById('boot-seq');
+  let i=0;
+  function next(){
+    if(i>=lines.length) return;
+    const d=document.createElement('div');
+    d.className='boot-line';
+    d.style.animationDelay=`${i*120}ms`;
+    d.textContent=lines[i]||'\u00a0';
+    el.appendChild(d);
+    i++;
+    setTimeout(next,130);
+  }
+  next();
 })();
 
-// ── SWITCH ────────────────────────────────────────────────────────────────
-let swOn = false;
+// ── PROGRESS DOTS ──────────────────────────────────────────────────────────
+const secOrder=['hero','ch1','ch2','ch3','ch4','closer'];
+function buildProg(elId, currentIdx){
+  const el=document.getElementById(elId); if(!el) return;
+  el.innerHTML = secOrder.map((_,i)=>{
+    let cls='prog-pip';
+    if(i<currentIdx) cls+=' done';
+    else if(i===currentIdx) cls+=' cur';
+    return `<span class="${cls}"></span>`;
+  }).join('');
+}
+buildProg('prog1',1); buildProg('prog2',2);
+buildProg('prog3',3); buildProg('prog4',4); buildProg('prog5',5);
+
+// ── PROGRESS BAR + NAV DOTS ────────────────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  const prog=window.scrollY/(document.body.scrollHeight-window.innerHeight);
+  document.getElementById('bar').style.transform=`scaleX(${Math.min(1,prog)})`;
+  let cur='hero';
+  secOrder.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<=100)cur=id;});
+  document.querySelectorAll('.dot').forEach(d=>d.classList.toggle('on',d.dataset.s===cur));
+},{passive:true});
+
+// ── SWITCH ─────────────────────────────────────────────────────────────────
+let swOn=false;
 function flipSwitch(){
-  swOn = !swOn;
-  const sw  = document.getElementById('sw');
-  const knob = document.getElementById('sw-knob');
-  const st  = document.getElementById('sw-state');
-  const bit = document.getElementById('sw-bit');
-  sw.classList.toggle('on', swOn);
-  sw.setAttribute('aria-checked', swOn);
-  knob.textContent = swOn ? '1' : '0';
-  st.textContent   = swOn ? 'ON'  : 'OFF';
-  bit.textContent  = swOn ? '1'   : '0';
-  bit.classList.toggle('on', swOn);
+  swOn=!swOn;
+  const sw=document.getElementById('sw');
+  const knob=document.getElementById('sw-knob');
+  sw.classList.toggle('on',swOn);
+  sw.setAttribute('aria-checked',swOn);
+  knob.textContent=swOn?'1':'0';
+  document.getElementById('sw-state').textContent=swOn?'ON':'OFF';
+  const bit=document.getElementById('sw-bit');
+  bit.textContent=swOn?'1':'0';
+  bit.classList.toggle('on',swOn);
 }
 
-// ── COUNTER ───────────────────────────────────────────────────────────────
-let cv = 0, cTimer = null;
-const cPlaces = [8, 4, 2, 1];
-
-(function buildCounter(){
-  document.getElementById('cbits').innerHTML = cPlaces.map((p,i) =>
-    `<div class="cbit">
-       <div class="cbit-label">${p}</div>
-       <div class="cbit-cell" id="cc${i}">0</div>
-     </div>`
+// ── COUNTER ────────────────────────────────────────────────────────────────
+let cv=0, cTimer=null;
+const cPlaces=[8,4,2,1];
+(function(){
+  document.getElementById('cbits').innerHTML=cPlaces.map((p,i)=>
+    `<div class="cbit"><div class="cbit-place">${p}</div><div class="cbit-cell" id="cc${i}">0</div></div>`
   ).join('');
 })();
-
 function renderC(n){
-  const prev = cv;
-  cv = Math.max(0, Math.min(15, n));
-  const bits = cv.toString(2).padStart(4,'0');
-  const active = [];
-  cPlaces.forEach((p,i) => {
-    const el = document.getElementById('cc'+i);
-    const wasOn = el.classList.contains('on');
-    el.textContent = bits[i];
-    const isOn = bits[i]==='1';
-    if (isOn) { el.classList.add('on'); active.push(p); }
-    else el.classList.remove('on');
-    if (isOn !== wasOn) { el.style.transform='scale(1.18)'; setTimeout(()=>el.style.transform='',220); }
+  cv=Math.max(0,Math.min(15,n));
+  const bits=cv.toString(2).padStart(4,'0');
+  const active=[];
+  cPlaces.forEach((p,i)=>{
+    const el=document.getElementById('cc'+i);
+    const wasOn=el.classList.contains('on');
+    el.textContent=bits[i];
+    const isOn=bits[i]==='1';
+    if(isOn){el.classList.add('on');active.push(p);}else el.classList.remove('on');
+    if(isOn!==wasOn){el.style.transform='scale(1.15)';setTimeout(()=>el.style.transform='',200);}
   });
-  document.getElementById('cval').textContent = cv;
-  document.getElementById('cexpr').textContent =
-    active.length ? active.join(' + ') + ' = ' + cv : 'all off = 0';
-  document.getElementById('cprev').disabled = cv === 0;
-  document.getElementById('cnext').disabled = cv === 15;
+  document.getElementById('cval').textContent=cv;
+  document.getElementById('cexpr').textContent=active.length?active.join(' + ')+' = '+cv:'all off = 0';
+  document.getElementById('cprev').disabled=cv===0;
+  document.getElementById('cnext').disabled=cv===15;
 }
 renderC(0);
-
-function cStep(d){ stopAuto(); renderC(cv + d); }
-function cReset(){ stopAuto(); renderC(0); }
+function cStep(d){stopAuto();renderC(cv+d);}
+function cReset(){stopAuto();renderC(0);}
 function cAuto(){
-  if (cTimer){ stopAuto(); return; }
-  document.getElementById('cauto').textContent = '■ stop';
-  document.getElementById('cauto').classList.remove('primary');
-  cTimer = setInterval(() => { if (cv >= 15) stopAuto(); else renderC(cv+1); }, 620);
+  if(cTimer){stopAuto();return;}
+  document.getElementById('cauto').textContent='■ STOP';
+  document.getElementById('cauto').classList.add('primary');
+  cTimer=setInterval(()=>{if(cv>=15)stopAuto();else renderC(cv+1);},620);
 }
 function stopAuto(){
-  clearInterval(cTimer); cTimer = null;
-  const b = document.getElementById('cauto');
-  b.textContent = '▶ auto-count';
-  b.classList.add('primary');
-}
-
-// ── COUNTER STEP WITH POP EFFECT ────────────────────────────────────────
-function popCell(i){
-  const el = document.getElementById('cc'+i);
-  el.style.transform='scale(1.25)';
-  setTimeout(()=>el.style.transform='',200);
+  clearInterval(cTimer);cTimer=null;
+  const b=document.getElementById('cauto');
+  b.textContent='▶ AUTO';
 }
 
 // ── TEXT → BINARY ──────────────────────────────────────────────────────────
-function renderBin(text, outId){
-  const el = document.getElementById(outId);
-  if (!text){ el.innerHTML = ''; return; }
-  el.innerHTML = [...text].map(c =>
+function renderBin(val,outId){
+  const el=document.getElementById(outId);
+  if(!val){el.innerHTML='';return;}
+  el.innerHTML=[...val].map(c=>
     `<div class="bin-char">
-       <div class="bin-letter">${c===' ' ? 'SPC' : c.toUpperCase()}</div>
+       <div class="bin-letter">${c===' '?'SPC':c.toUpperCase()}</div>
        <div class="bin-bits">${c2b(c)}</div>
      </div>`
   ).join('');
 }
-function doTTB(){ renderBin(document.getElementById('ttb').value, 'ttb-out'); }
-function doName(){ renderBin(document.getElementById('name-in').value, 'name-out'); }
+function doTTB(){renderBin(document.getElementById('ttb').value,'ttb-out');}
+function doName(){renderBin(document.getElementById('name-in').value,'name-out');}
 
-// ── BYTE VISUAL (static "A" = 01000001) ───────────────────────────────────
+// ── BYTE VISUAL (static "A") ───────────────────────────────────────────────
 (function(){
-  const bits = '01000001'.split('');
-  document.getElementById('byte-vis').innerHTML = bits.map(b =>
+  document.getElementById('byte-vis').innerHTML='01000001'.split('').map(b=>
     `<div class="byte-cell${b==='1'?' on':''}">${b}</div>`
   ).join('');
 })();
 
 // ── BYTE BUILDER ───────────────────────────────────────────────────────────
-const bWeights = [128,64,32,16,8,4,2,1];
-const bState   = [0,0,0,0,0,0,0,0];
-
-(function buildBuilder(){
-  document.getElementById('builder').innerHTML = bWeights.map((w,i) =>
+const bW=[128,64,32,16,8,4,2,1],bS=[0,0,0,0,0,0,0,0];
+(function(){
+  document.getElementById('builder').innerHTML=bW.map((w,i)=>
     `<div class="bbit" onclick="flipBit(${i})">
-       <div class="bbit-weight">${w}</div>
+       <div class="bbit-w">${w}</div>
        <div class="bbit-cell" id="bb${i}">0</div>
      </div>`
   ).join('');
 })();
-
 function flipBit(i){
-  bState[i] = bState[i] ? 0 : 1;
-  const cell = document.getElementById('bb'+i);
-  cell.textContent = bState[i];
-  cell.classList.toggle('on', !!bState[i]);
-  const dec = bState.reduce((a,b,j) => a + (b ? bWeights[j] : 0), 0);
-  document.getElementById('b-dec').textContent = dec;
-  const info = document.getElementById('b-info');
-  const cell = document.getElementById('bb'+i);
-  // pop effect
-  cell.style.transform = bState[i] ? 'scale(1.18)' : 'scale(0.9)';
-  setTimeout(() => cell.style.transform='', 200);
-  if (dec === 0)              info.textContent = 'tap a bit above to get started';
-  else if (dec>=32&&dec<=126) info.innerHTML = `decimal ${dec} · character <strong>"${String.fromCharCode(dec)}"</strong>`;
-  else                         info.innerHTML = `decimal <strong>${dec}</strong> · ${dec < 32 ? 'control character' : 'extended ASCII'}`; 
+  bS[i]=bS[i]?0:1;
+  const cell=document.getElementById('bb'+i);
+  cell.textContent=bS[i];
+  cell.classList.toggle('on',!!bS[i]);
+  cell.style.transform=bS[i]?'scale(1.15)':'scale(0.9)';
+  setTimeout(()=>cell.style.transform='',180);
+  const dec=bS.reduce((a,b,j)=>a+(b?bW[j]:0),0);
+  document.getElementById('b-dec').textContent=dec;
+  const info=document.getElementById('b-info');
+  if(dec===0)              info.textContent='click a bit above to begin';
+  else if(dec>=32&&dec<=126) info.innerHTML=`decimal ${dec} &nbsp;·&nbsp; character <strong>"${String.fromCharCode(dec)}"</strong>`;
+  else                        info.innerHTML=`decimal <strong>${dec}</strong> &nbsp;·&nbsp; ${dec<32?'control char':'extended ASCII'}`;
 }
 
 // ── RLE DEMO ───────────────────────────────────────────────────────────────
 (function(){
-  const segs = [{c:'#e8eeff',n:6},{c:'#1a1a2e',n:4},{c:'#e8eeff',n:6}];
-  const el = document.getElementById('rle');
-  let pxHTML = segs.map(({c,n}) =>
-    Array(n).fill(`<div class="rle-px" style="background:${c};border:1px solid rgba(255,255,255,.1);"></div>`).join('')
-  ).join('');
-  el.innerHTML =
-    `<div class="rle-row"><div class="rle-tag">pixels</div><div class="rle-pixels">${pxHTML}</div></div>` +
-    `<div class="rle-row"><div class="rle-tag">encoded</div><span class="rle-code">6W &nbsp;4B &nbsp;6W</span></div>`;
+  const segs=[{c:'#c8ffc8',n:6},{c:'#020a02',n:4},{c:'#c8ffc8',n:6}];
+  const el=document.getElementById('rle');
+  let px=segs.map(({c,n})=>Array(n).fill(`<div class="rle-px" style="background:${c};border:1px solid rgba(51,255,51,.25);"></div>`).join('')).join('');
+  el.innerHTML=
+    `<div class="rle-row"><div class="rle-tag">PIXELS:</div><div class="rle-pix">${px}</div></div>`+
+    `<div class="rle-row"><div class="rle-tag">ENCODED:</div><span class="rle-code">6W &nbsp;4B &nbsp;6W</span></div>`;
 })();
 
-// ── CLOSER BINARY TEXT ─────────────────────────────────────────────────────
+// ── CLOSER ─────────────────────────────────────────────────────────────────
 (function(){
-  const msg = 'Nice work!';
-  const coded = [...msg].map(c => c2b(c)).join(' ');
-  // Highlight the space characters differently
-  document.getElementById('closer-code').innerHTML =
-    coded.split(' ').map((b,i) => {
-      const ch = msg[i] || '';
-      return ch === ' ' ? `<span> </span>` : `<span>${b}</span>`;
-    }).join(' ');
+  const msg='Nice work!';
+  document.getElementById('closer-code').textContent=[...msg].map(c=>c2b(c)).join(' ');
 })();
+
+// ── TICKER ─────────────────────────────────────────────────────────────────
+// not used in terminal theme — boot seq replaces it
+
+// ── READABILITY CONTROLS ──────────────────────────────────────────────
+let scanOn = true;
+function setBrightness(val) {
+  document.body.style.filter = `brightness(${val}%)`;
+}
+function toggleScan() {
+  scanOn = !scanOn;
+  const btn = document.getElementById('scan-toggle');
+  if (scanOn) {
+    document.body.classList.remove('no-scan');
+    btn.textContent = 'SCAN: ON';
+    btn.classList.remove('off');
+  } else {
+    document.body.classList.add('no-scan');
+    btn.textContent = 'SCAN: OFF';
+    btn.classList.add('off');
+  }
+}
+
 </script>
 </body>
 </html>
